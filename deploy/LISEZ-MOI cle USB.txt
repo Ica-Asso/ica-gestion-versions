@@ -1,0 +1,22 @@
+﻿L'ICA Gestion — installation depuis la clé USB
+=============================================
+
+1. Double-cliquez sur « Installer L'ICA Gestion.bat ».
+   - Windows peut afficher « Windows a protégé votre ordinateur » :
+     cliquez sur « Informations complémentaires » puis « Exécuter quand même ».
+   - L'application est copiée sur l'ordinateur et un raccourci « L'ICA Gestion »
+     apparaît sur le Bureau. Aucun mot de passe administrateur n'est nécessaire.
+
+2. Relier le compte Google (les adhérents arrivent tout seuls) :
+   - ouvrez L'ICA Gestion > Paramètres > « Se connecter avec Google » ;
+   - choisissez le compte Google de l'association ;
+   - écran « Google n'a pas validé cette application » : cliquez sur
+     « Paramètres avancés » puis « Accéder à L'ICA Gestion », cochez les deux cases, Continuer ;
+   - le voyant en bas à gauche passe au vert « Synchronisé ».
+
+Ensuite, plus rien à faire :
+   - les ordinateurs restent synchronisés automatiquement ;
+   - les nouvelles versions s'annoncent toutes seules (« Nouvelle version » en bas à gauche,
+     un clic sur « Mettre à jour »). La clé USB ne sert plus.
+
+En cas de souci : bouton « Un problème ? » en bas du menu de l'application.

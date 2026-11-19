@@ -1,0 +1,19 @@
+<Application x:Class="ICA.Desktop.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:outils="clr-namespace:ICA.Desktop.Outils"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Theme/Couleurs.xaml" />
+                <ResourceDictionary Source="Theme/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <outils:BoolVersVisibilite x:Key="SiVrai" />
+            <outils:BoolVersVisibilite x:Key="SiFaux" Inverser="True" />
+            <outils:NulVersVisibilite x:Key="SiRempli" />
+            <outils:IdVersIcone x:Key="IdVersIcone" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

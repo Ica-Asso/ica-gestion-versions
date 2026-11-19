@@ -1,0 +1,68 @@
+name: Publier une mise à jour
+
+# À chaque push sur main : si le numéro du fichier VERSION n'est pas encore publié,
+# compile ICA-Gestion.exe sur Windows et crée la release dans ce dépôt (Ica-Asso/ica-gestion-versions).
+# Les ordinateurs de l'association la proposent ensuite d'eux-mêmes (« Mettre à jour »).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publication
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: windows-latest
+    env:
+      DEPOT_VERSIONS: ${{ github.repository }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Numéro de version
+        id: version
+        shell: pwsh
+        run: |
+          $v = (Get-Content VERSION -Raw).Trim()
+          "numero=$v" >> $env:GITHUB_OUTPUT
+          gh release view "v$v" --repo $env:DEPOT_VERSIONS *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "La version $v est déjà publiée : rien à faire (changez VERSION pour publier)."
+            "deja=oui" >> $env:GITHUB_OUTPUT
+          } else {
+            "deja=non" >> $env:GITHUB_OUTPUT
+          }
+          exit 0
+
+      - uses: actions/setup-dotnet@v4
+        if: steps.version.outputs.deja == 'non'
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Tests
+        if: steps.version.outputs.deja == 'non'
+        run: dotnet test ICA-Gestion.sln --configuration Release
+
+      # google-client.json n'est pas nécessaire : seul ICA-Gestion.exe est publié,
+      # les identifiants Google restent à côté de l'exe installé sur chaque ordinateur.
+      - name: Compilation de ICA-Gestion.exe
+        if: steps.version.outputs.deja == 'non'
+        run: >
+          dotnet publish src/ICA.Desktop/ICA.Desktop.csproj -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=none -o publication
+
+      - name: Publication de la release
+        if: steps.version.outputs.deja == 'non'
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.numero }}"
+          $notes = "Version $v de L'ICA Gestion."
+          if (Test-Path NOTES.md) { $notes = (Get-Content NOTES.md -Raw).Trim() }
+          gh release create "v$v" publication/ICA-Gestion.exe --repo $env:DEPOT_VERSIONS --title "Version $v" --notes $notes
+          if ($LASTEXITCODE -ne 0) { throw "La publication a échoué." }
+          Write-Host "Version $v publiée."

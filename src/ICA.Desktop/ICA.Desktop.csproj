@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>ICA.Desktop</RootNamespace>
+    <AssemblyName>ICA-Gestion</AssemblyName>
+    <ApplicationIcon>Assets\ica.ico</ApplicationIcon>
+    <!-- Permet de compiler aussi depuis Linux/macOS (CI, vérifications) ; l'exécution reste Windows. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ICA.Client\ICA.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\logo-ica.jpg" />
+    <Resource Include="Assets\ica.ico" />
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- Identifiants du projet Google Cloud (non versionné, voir docs/GOOGLE.md) -->
+    <None Update="google-client.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

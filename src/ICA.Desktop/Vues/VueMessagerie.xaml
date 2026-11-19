@@ -1,0 +1,100 @@
+<UserControl x:Class="ICA.Desktop.Vues.VueMessagerie"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ICA.Client.ViewModels;assembly=ICA.Client">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="40,52,40,32">
+            <TextBlock Text="Messagerie" Style="{StaticResource Titre1}" />
+            <TextBlock Text="{Binding TexteEnvoi}" Style="{StaticResource StyleTexteDiscret}" FontSize="16" TextWrapping="Wrap" Margin="0,6,0,0" />
+
+            <!-- ================= Écrire à… ================= -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,24,0,0">
+                <StackPanel>
+                    <TextBlock Text="Écrire à…" Style="{StaticResource Titre2}" />
+                    <ItemsControl ItemsSource="{Binding Groupes}" Margin="0,14,0,0" Focusable="False">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:GroupeDestinataires}">
+                                <Button Command="{Binding Ecrire}" Margin="0,0,12,12" Cursor="Hand" AutomationProperties.Name="{Binding Libelle}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="Fond" Width="250" MinHeight="78" Padding="16,12" CornerRadius="14" BorderThickness="2"
+                                                    Background="White" BorderBrush="{StaticResource BordureForte}">
+                                                <DockPanel>
+                                                    <Path DockPanel.Dock="Left" Data="{StaticResource Ico.envoyer}" Style="{StaticResource Icone}"
+                                                          Stroke="{StaticResource Bordeaux}" VerticalAlignment="Center" Margin="0,0,14,0" />
+                                                    <StackPanel VerticalAlignment="Center">
+                                                        <TextBlock x:Name="Libelle" Text="{Binding Libelle}" FontSize="16" FontWeight="Bold" TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding Detail}" FontSize="14" Foreground="{StaticResource TexteDiscret}" />
+                                                    </StackPanel>
+                                                </DockPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding EstAttention}" Value="True">
+                                                    <Setter TargetName="Fond" Property="Background" Value="{StaticResource OrangeClair}" />
+                                                    <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource OrangeBordure}" />
+                                                    <Setter TargetName="Libelle" Property="Foreground" Value="{StaticResource Orange}" />
+                                                </DataTrigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource Bordeaux}" />
+                                                </Trigger>
+                                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                                    <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource Texte}" />
+                                                </Trigger>
+                                                <Trigger Property="IsEnabled" Value="False">
+                                                    <Setter TargetName="Fond" Property="Opacity" Value="0.5" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <DockPanel Margin="0,4,0,0">
+                        <Button DockPanel.Dock="Right" Style="{StaticResource BoutonSecondaire}" Content="Choisir dans Adhérents"
+                                Command="{Binding ChoisirAdherentsCommand}" FontWeight="Bold" VerticalAlignment="Center" />
+                        <TextBlock Text="Pour écrire à quelques personnes : cochez-les dans Adhérents, puis « Envoyer un mail »."
+                                   Style="{StaticResource StyleTexteDiscret}" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,16,0" />
+                    </DockPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= Historique ================= -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,16,0,0">
+                <StackPanel>
+                    <TextBlock Text="Messages envoyés" Style="{StaticResource Titre2}" />
+                    <TextBlock Text="Aucun message pour l'instant. Les messages écrits depuis L'ICA Gestion s'afficheront ici, sur tous vos ordinateurs."
+                               Style="{StaticResource StyleTexteDiscret}" FontSize="15" TextWrapping="Wrap" Margin="0,8,0,0"
+                               Visibility="{Binding HistoriqueVide, Converter={StaticResource SiVrai}}" />
+                    <ItemsControl ItemsSource="{Binding Historique}" Margin="0,12,0,0" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:LigneMessage}">
+                                <Border BorderBrush="{StaticResource Bordure}" BorderThickness="0,0,0,1" Padding="0,12">
+                                    <DockPanel>
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Voir" Command="{Binding Voir}" Margin="0,0,10,0" MinHeight="40" />
+                                            <Button Style="{StaticResource BoutonDanger}" Content="Retirer" Command="{Binding Supprimer}" VerticalAlignment="Center" FontSize="14" />
+                                        </StackPanel>
+                                        <StackPanel Margin="0,0,16,0">
+                                            <TextBlock Text="{Binding Objet}" FontSize="17" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Quand}" FontSize="14" Foreground="{StaticResource TexteSecondaire}" />
+                                            <TextBlock Text="{Binding Detail}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource Vert}"
+                                                       Visibility="{Binding EnvoiDirect, Converter={StaticResource SiVrai}}" />
+                                            <TextBlock Text="{Binding Detail}" FontSize="14" Foreground="{StaticResource TexteDiscret}"
+                                                       Visibility="{Binding Prepare, Converter={StaticResource SiVrai}}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

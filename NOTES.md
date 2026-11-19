@@ -1,0 +1,1 @@
+Nouveautés : module Dons & Mécénat (entreprises donatrices, dons, attestations, reçus fiscaux au format Cerfa 16216*03 avec spécimen et lettre de remerciement sur papier à en-tête, envoi par Gmail, bilan PDF et Excel).

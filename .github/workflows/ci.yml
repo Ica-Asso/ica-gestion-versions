@@ -1,0 +1,29 @@
+name: CI
+
+# À chaque envoi : compilation de toute la solution + tests.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restauration
+        run: dotnet restore ICA-Gestion.sln
+
+      - name: Compilation
+        run: dotnet build ICA-Gestion.sln --configuration Release --no-restore
+
+      - name: Tests
+        run: dotnet test ICA-Gestion.sln --configuration Release --no-build --verbosity normal

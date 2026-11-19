@@ -1,0 +1,212 @@
+<UserControl x:Class="ICA.Desktop.Vues.VueCotisations"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ICA.Client.ViewModels;assembly=ICA.Client">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="40,52,40,32">
+
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <TextBlock Text="Saison" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{StaticResource TexteSecondaire}" />
+                    <ComboBox Style="{StaticResource Liste}" Width="170" Margin="12,0,0,0" FontWeight="Bold"
+                              ItemsSource="{Binding SaisonsDisponibles}" SelectedItem="{Binding Saison}"
+                              AutomationProperties.Name="Saison" />
+                </StackPanel>
+                <TextBlock Text="Cotisations" Style="{StaticResource Titre1}" VerticalAlignment="Center" />
+            </DockPanel>
+
+            <!-- Bilan -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,24,0,0" Padding="26,22">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel VerticalAlignment="Center" Margin="0,0,32,0">
+                        <TextBlock Text="{Binding TexteBilan}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap" />
+                        <ProgressBar Style="{StaticResource Progression}" Value="{Binding Pourcentage, Mode=OneWay}" Maximum="100" Margin="0,12,0,0"
+                                     AutomationProperties.Name="Part des cotisations réglées" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <StackPanel Margin="0,0,32,0">
+                            <TextBlock Text="{Binding Stats.Payees}" FontSize="36" FontWeight="Bold" Foreground="{StaticResource Vert}" />
+                            <TextBlock Text="Payées" FontWeight="SemiBold" Foreground="{StaticResource TexteSecondaire}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Stats.ARegler}" FontSize="36" FontWeight="Bold" Foreground="{StaticResource OrangeVif}" />
+                            <TextBlock Text="À régler" FontWeight="SemiBold" Foreground="{StaticResource TexteSecondaire}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Argent de la saison -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,16,0,0" Padding="26,20">
+                <StackPanel>
+                    <TextBlock Text="{Binding TitreBilanFinancier}" Style="{StaticResource Titre2}" />
+                    <UniformGrid Columns="3" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Encaisse}" FontSize="32" FontWeight="Bold" Foreground="{StaticResource Vert}" />
+                            <TextBlock Text="Encaissé" FontWeight="SemiBold" Foreground="{StaticResource TexteSecondaire}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{Binding ResteAEncaisser}" FontSize="32" FontWeight="Bold" Foreground="{StaticResource OrangeVif}" />
+                            <TextBlock Text="Reste à encaisser" FontWeight="SemiBold" Foreground="{StaticResource TexteSecondaire}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{Binding Prevu}" FontSize="32" FontWeight="Bold" />
+                            <TextBlock Text="Total prévu sur l'année" FontWeight="SemiBold" Foreground="{StaticResource TexteSecondaire}" />
+                        </StackPanel>
+                    </UniformGrid>
+                    <TextBlock Text="{Binding DetailModes}" Style="{StaticResource StyleTexteDiscret}" FontSize="16" Margin="0,12,0,0"
+                               Visibility="{Binding DetailModes, Converter={StaticResource SiRempli}}" />
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,20,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition Width="2*" MinWidth="340" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel>
+                    <!-- À régler -->
+                    <Border Style="{StaticResource StyleCarte}">
+                        <StackPanel>
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource BoutonSecondaire}" Command="{Binding RappelCommand}"
+                                        MinHeight="44" FontSize="15" FontWeight="Bold" Padding="16,0">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource Ico.envoyer}" Style="{StaticResource Icone}" Width="18" Height="18"
+                                              Stroke="{StaticResource Bordeaux}" />
+                                        <TextBlock Text="{Binding TexteRappel}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                                <TextBlock Text="À régler" Style="{StaticResource Titre2}" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <TextBlock Text="Toutes les cotisations de cette saison sont réglées." Style="{StaticResource StyleTexteDiscret}" Margin="0,14,0,0"
+                                       Visibility="{Binding ToutEstRegle, Converter={StaticResource SiVrai}}" />
+                            <ItemsControl ItemsSource="{Binding ARegler}" Margin="0,8,0,0" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:LigneCotisation}">
+                                        <Border x:Name="Ligne" BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Padding="8,12" CornerRadius="0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <Border Style="{StaticResource Avatar}">
+                                                    <TextBlock Text="{Binding Initiales}" Style="{StaticResource StyleAvatarTexte}" />
+                                                </Border>
+                                                <StackPanel Grid.Column="1" Margin="14,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding NomAffiche}" FontSize="17" FontWeight="Bold" />
+                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource StyleTexteDiscret}" FontSize="14" />
+                                                </StackPanel>
+                                                <Button Grid.Column="2" Style="{StaticResource BoutonContour}" Content="Marquer payée"
+                                                        Command="{Binding Action}" />
+                                            </Grid>
+                                        </Border>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding EstCible}" Value="True">
+                                                <Setter TargetName="Ligne" Property="Background" Value="{StaticResource BordeauxClair}" />
+                                                <Setter TargetName="Ligne" Property="CornerRadius" Value="12" />
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Derniers paiements -->
+                    <Border Style="{StaticResource StyleCarte}" Margin="0,20,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Derniers paiements" Style="{StaticResource Titre2}" />
+                            <TextBlock Text="Aucun paiement enregistré pour cette saison." Style="{StaticResource StyleTexteDiscret}" Margin="0,14,0,0"
+                                       Visibility="{Binding AucunPaiement, Converter={StaticResource SiVrai}}" />
+                            <ItemsControl ItemsSource="{Binding DerniersPaiements}" Margin="0,8,0,0" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type vm:LigneCotisation}">
+                                        <Border BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Padding="0,8">
+                                            <DockPanel>
+                                                <Border Width="28" Height="28" CornerRadius="14" Background="{StaticResource VertClair}">
+                                                    <Path Data="{StaticResource Ico.valider}" Stroke="{StaticResource Vert}" StrokeThickness="2.6"
+                                                          Stretch="Uniform" Margin="7" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                                </Border>
+                                                <Button DockPanel.Dock="Right" Style="{StaticResource BoutonLien}" Content="Annuler" FontSize="14"
+                                                        FontWeight="SemiBold" Foreground="{StaticResource TexteDiscret}" Command="{Binding Action}"
+                                                        ToolTip="Annuler ce paiement (erreur de saisie)" />
+                                                <TextBlock DockPanel.Dock="Right" Text="{Binding Detail}" Style="{StaticResource StyleTexteDiscret}"
+                                                           VerticalAlignment="Center" Margin="0,0,10,0" />
+                                                <TextBlock Text="{Binding NomAffiche}" FontWeight="SemiBold" Margin="14,0" VerticalAlignment="Center" />
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Encaissement -->
+                <Border Grid.Column="2" Style="{StaticResource StyleCarte}" VerticalAlignment="Top" Padding="26"
+                        Visibility="{Binding EncaissementMasque, Converter={StaticResource SiVrai}}">
+                    <StackPanel>
+                        <TextBlock Text="Encaisser une cotisation" Style="{StaticResource Titre2}" />
+                        <TextBlock Text="Cliquez sur « Marquer payée » à côté d'un adhérent : le montant, le mode de paiement et la date vous seront demandés ici."
+                                   Style="{StaticResource StyleTexteDiscret}" Margin="0,10,0,0" FontSize="16" />
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" VerticalAlignment="Top" Background="White" BorderBrush="{StaticResource Bordeaux}" BorderThickness="2"
+                        CornerRadius="18" Padding="26" Visibility="{Binding EncaissementVisible, Converter={StaticResource SiVrai}}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="28" ShadowDepth="8" Direction="270" Opacity="0.10" Color="#3C1E14" />
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock Text="ENCAISSER UNE COTISATION" FontSize="13" FontWeight="Bold" Foreground="{StaticResource Bordeaux}" />
+                        <TextBlock Text="{Binding Cible.NomAffiche}" FontSize="26" FontWeight="Bold" Margin="0,4,0,0" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding SousTitreEncaissement}" Style="{StaticResource StyleTexteDiscret}" />
+
+                        <TextBlock Text="Montant (€)" Style="{StaticResource Libelle}" Margin="0,20,0,6" />
+                        <TextBox Style="{StaticResource Champ}" Text="{Binding Montant, UpdateSourceTrigger=PropertyChanged}" Tag="Exemple : 15"
+                                 FontSize="20" FontWeight="Bold" AutomationProperties.Name="Montant" />
+                        <TextBlock Text="{Binding ErreurMontant}" Style="{StaticResource TexteErreur}"
+                                   Visibility="{Binding ErreurMontant, Converter={StaticResource SiRempli}}" />
+
+                        <TextBlock Text="Mode de paiement" Style="{StaticResource Libelle}" Margin="0,18,0,6" />
+                        <UniformGrid Columns="3">
+                            <RadioButton Style="{StaticResource Segment}" Content="Espèces" Margin="0,0,8,0"
+                                         IsChecked="{Binding ModeEspeces}" />
+                            <RadioButton Style="{StaticResource Segment}" Content="Chèque" Margin="4,0"
+                                         IsChecked="{Binding ModeCheque}" />
+                            <RadioButton Style="{StaticResource Segment}" Content="Virement" Margin="8,0,0,0"
+                                         IsChecked="{Binding ModeVirement}" />
+                        </UniformGrid>
+
+                        <TextBlock Text="Date du paiement" Style="{StaticResource Libelle}" Margin="0,18,0,6" />
+                        <DatePicker Style="{StaticResource Date}" SelectedDate="{Binding DatePaiement}" AutomationProperties.Name="Date du paiement" />
+
+                        <Grid Margin="0,24,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button Style="{StaticResource BoutonPrincipal}" Command="{Binding ConfirmerCommand}" MinHeight="56" FontSize="17">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource Ico.valider}" Style="{StaticResource Icone}" StrokeThickness="2.4" />
+                                    <TextBlock Text="Confirmer le paiement" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+                            <Button Grid.Column="2" Style="{StaticResource BoutonSecondaire}" Content="Annuler" MinHeight="56"
+                                    Command="{Binding FermerEncaissementCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Cerveau client partagé Windows (WPF) et mobile (MAUI) : aucune référence à une interface graphique. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ICA.Client</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ICA.Domain\ICA.Domain.csproj" />
+    <ProjectReference Include="..\ICA.Contracts\ICA.Contracts.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="ICA.Client.Tests" />
+  </ItemGroup>
+</Project>

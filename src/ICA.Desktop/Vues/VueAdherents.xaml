@@ -1,0 +1,308 @@
+<UserControl x:Class="ICA.Desktop.Vues.VueAdherents"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ICA.Client.ViewModels;assembly=ICA.Client">
+    <Grid Margin="40,52,40,28">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="440" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="400" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ================= Liste ================= -->
+        <DockPanel Grid.Column="0">
+            <DockPanel DockPanel.Dock="Top">
+                <Button DockPanel.Dock="Right" Style="{StaticResource BoutonPrincipal}" Command="{Binding AjouterCommand}" MinHeight="52">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource Ico.plus}" Style="{StaticResource Icone}" StrokeThickness="2.4" />
+                        <TextBlock Text="Ajouter un adhérent" Margin="10,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Text="Adhérents" Style="{StaticResource Titre1}" VerticalAlignment="Center" />
+            </DockPanel>
+
+            <Grid DockPanel.Dock="Top" Margin="0,18,0,0">
+                <TextBox x:Name="ChampRecherche" Style="{StaticResource ChampRecherche}"
+                         Tag="Nom, prénom, ville, téléphone, e-mail…"
+                         Text="{Binding Recherche, UpdateSourceTrigger=PropertyChanged}"
+                         AutomationProperties.Name="Rechercher un adhérent">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Escape" Command="{Binding EffacerRechercheCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
+                <Button Style="{StaticResource BoutonLien}" HorizontalAlignment="Right" Margin="0,0,10,0" FontSize="15"
+                        Content="Effacer" Command="{Binding EffacerRechercheCommand}"
+                        Visibility="{Binding ARecherche, Converter={StaticResource SiVrai}}" />
+            </Grid>
+
+            <!-- Filtres -->
+            <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Filtres}" Margin="0,14,0,0" Focusable="False">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:ElementFiltre}">
+                        <Button Command="{Binding Commande}" Margin="0,0,10,10" Cursor="Hand" AutomationProperties.Name="{Binding Texte}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Fond" MinHeight="44" Padding="18,0" CornerRadius="22" BorderThickness="2"
+                                            Background="White" BorderBrush="{StaticResource BordureForte}">
+                                        <TextBlock x:Name="Texte" Text="{Binding Texte}" VerticalAlignment="Center"
+                                                   FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource TexteSecondaire}" />
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding EstAttention}" Value="True">
+                                            <Setter TargetName="Fond" Property="Background" Value="{StaticResource OrangeClair}" />
+                                            <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource OrangeBordure}" />
+                                            <Setter TargetName="Texte" Property="Foreground" Value="{StaticResource Orange}" />
+                                            <Setter TargetName="Texte" Property="FontWeight" Value="Bold" />
+                                        </DataTrigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource BordureSurvol}" />
+                                        </Trigger>
+                                        <DataTrigger Binding="{Binding EstActif}" Value="True">
+                                            <Setter TargetName="Fond" Property="Background" Value="{StaticResource Bordeaux}" />
+                                            <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource Bordeaux}" />
+                                            <Setter TargetName="Texte" Property="Foreground" Value="White" />
+                                            <Setter TargetName="Texte" Property="FontWeight" Value="Bold" />
+                                        </DataTrigger>
+                                        <Trigger Property="IsKeyboardFocused" Value="True">
+                                            <Setter TargetName="Fond" Property="BorderBrush" Value="{StaticResource Texte}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Barre d'outils : tri + résultat + actions sur la liste -->
+            <DockPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Style="{StaticResource BoutonLien}" Content="Tout cocher" FontSize="15" Command="{Binding CocherVisiblesCommand}" Margin="0,0,6,0" />
+                    <Button Style="{StaticResource BoutonLien}" Content="Exporter la liste" FontSize="15" Command="{Binding ExporterToutCommand}" Margin="0,0,6,0" />
+                    <Button Style="{StaticResource BoutonLien}" Content="Imprimer la liste" FontSize="15" Command="{Binding ImprimerToutCommand}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Trier par" VerticalAlignment="Center" Foreground="{StaticResource TexteDiscret}" FontSize="15" />
+                    <ComboBox Style="{StaticResource Liste}" Width="190" Margin="10,0,16,0" MinHeight="40"
+                              ItemsSource="{x:Static vm:AdherentsViewModel.OptionsTri}" SelectedItem="{Binding Tri}"
+                              AutomationProperties.Name="Trier par" />
+                    <TextBlock Text="{Binding TexteResultat}" VerticalAlignment="Center" FontWeight="SemiBold"
+                               Foreground="{StaticResource TexteSecondaire}" FontSize="15" />
+                </StackPanel>
+            </DockPanel>
+
+            <!-- Barre de sélection (bordeaux) -->
+            <Border DockPanel.Dock="Top" Background="{StaticResource Bordeaux}" CornerRadius="12" Padding="16,10" Margin="0,0,0,12"
+                    Visibility="{Binding BarreSelectionVisible, Converter={StaticResource SiVrai}}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource BoutonSurBordeaux}" Content="Envoyer un mail" Command="{Binding MailSelectionCommand}" Margin="0,0,10,0" />
+                        <Button Style="{StaticResource BoutonContourSurBordeaux}" Content="Exporter" Command="{Binding ExporterSelectionCommand}" Margin="0,0,10,0" />
+                        <Button Style="{StaticResource BoutonContourSurBordeaux}" Content="Imprimer" Command="{Binding ImprimerSelectionCommand}" Margin="0,0,10,0" />
+                        <Button Style="{StaticResource BoutonContourSurBordeaux}" Command="{Binding DecocherToutCommand}"
+                                ToolTip="Tout décocher" AutomationProperties.Name="Tout décocher" Padding="12,0">
+                            <Path Data="{StaticResource Ico.fermer}" Style="{StaticResource Icone}" Width="16" Height="16" />
+                        </Button>
+                    </StackPanel>
+                    <TextBlock Text="{Binding TexteSelection}" Foreground="White" FontWeight="Bold" VerticalAlignment="Center" />
+                </DockPanel>
+            </Border>
+
+            <!-- Aucun résultat -->
+            <Border DockPanel.Dock="Top" Style="{StaticResource StyleCarte}" Visibility="{Binding AucunResultat, Converter={StaticResource SiVrai}}">
+                <StackPanel>
+                    <TextBlock Text="Aucun adhérent ne correspond à votre recherche." Style="{StaticResource Titre3}" />
+                    <TextBlock Text="Vérifiez l'orthographe, essayez seulement le nom, ou cliquez sur « Tous »." Style="{StaticResource StyleTexteDiscret}" Margin="0,6,0,0" />
+                </StackPanel>
+            </Border>
+
+            <ListBox ItemsSource="{Binding Visibles}" SelectedItem="{Binding Selection}" BorderThickness="0" Background="Transparent"
+                     ItemContainerStyle="{StaticResource ElementCarte}" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     VirtualizingPanel.ScrollUnit="Pixel" AutomationProperties.Name="Liste des adhérents">
+                <ListBox.ItemTemplate>
+                    <DataTemplate DataType="{x:Type vm:ElementAdherent}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Style="{StaticResource Case}" IsChecked="{Binding EstCoche}" VerticalAlignment="Center"
+                                      AutomationProperties.Name="{Binding NomAffiche, StringFormat='Sélectionner {0}'}" />
+                            <Border Grid.Column="1" Style="{StaticResource Avatar}" Margin="12,0,0,0">
+                                <TextBlock Text="{Binding Initiales}" Style="{StaticResource StyleAvatarTexte}" />
+                            </Border>
+                            <StackPanel Grid.Column="2" Margin="14,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding NomAffiche}" FontSize="17" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding Detail}" FontSize="14" Foreground="{StaticResource TexteDiscret}" TextTrimming="CharacterEllipsis" />
+                                <TextBlock Text="{Binding TexteManques, StringFormat='⚠ {0}'}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource Orange}"
+                                           TextTrimming="CharacterEllipsis" Visibility="{Binding AManques, Converter={StaticResource SiVrai}}" />
+                            </StackPanel>
+                            <Border Grid.Column="3" Style="{StaticResource PastilleVerte}" Visibility="{Binding EstPaye, Converter={StaticResource SiVrai}}">
+                                <TextBlock Text="✓ Payée" FontSize="14" FontWeight="Bold" Foreground="{StaticResource Vert}" />
+                            </Border>
+                            <Border Grid.Column="3" Style="{StaticResource PastilleOrange}" Visibility="{Binding EstARegler, Converter={StaticResource SiVrai}}">
+                                <TextBlock Text="À régler" FontSize="14" FontWeight="Bold" Foreground="{StaticResource Orange}" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+
+        <!-- ================= Fiche ================= -->
+        <Border Grid.Column="2" Style="{StaticResource StyleCarte}" CornerRadius="18" Padding="0"
+                Visibility="{Binding PasDeFiche, Converter={StaticResource SiVrai}}">
+            <StackPanel VerticalAlignment="Center" Margin="32">
+                <Path Data="{StaticResource Ico.adherents}" Style="{StaticResource Icone}" Width="48" Height="48"
+                      Stroke="{StaticResource BordureSurvol}" HorizontalAlignment="Center" />
+                <TextBlock Text="Choisissez un adhérent dans la liste pour voir sa fiche." TextAlignment="Center" TextWrapping="Wrap"
+                           Style="{StaticResource StyleTexteDiscret}" FontSize="16" Margin="0,16,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Column="2" Style="{StaticResource StyleCarte}" CornerRadius="18" Padding="0"
+                Visibility="{Binding AFiche, Converter={StaticResource SiVrai}}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+                <StackPanel Margin="26" DataContext="{Binding Fiche}">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="64" Height="64" CornerRadius="32" Background="{StaticResource Bordeaux}">
+                            <TextBlock Text="{Binding Initiales}" Foreground="White" FontSize="22" FontWeight="Bold"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center" MaxWidth="250">
+                            <TextBlock Text="{Binding NomAffiche}" FontSize="25" FontWeight="Bold" TextWrapping="Wrap" />
+                            <TextBlock Text="{Binding SousTitre}" Style="{StaticResource StyleTexteDiscret}" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Ce qu'il reste à compléter -->
+                    <Border Background="{StaticResource OrangeClair}" BorderBrush="{StaticResource OrangeBordure}" BorderThickness="1"
+                            CornerRadius="10" Padding="14,10" Margin="0,16,0,0" Visibility="{Binding AManques, Converter={StaticResource SiVrai}}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding TexteManques, StringFormat='⚠ {0}'}" FontWeight="Bold" Foreground="{StaticResource Orange}" TextWrapping="Wrap" />
+                            <TextBlock Text="Cliquez sur « Modifier » pour compléter la fiche." FontSize="14" Foreground="{StaticResource Orange}" Margin="0,2,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <ItemsControl ItemsSource="{Binding Lignes}" Margin="0,20,0,0" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:LigneInfo}">
+                                <Grid Margin="0,0,0,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="110" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Libelle}" Foreground="{StaticResource TexteDiscret}" />
+                                    <TextBox Grid.Column="1" Text="{Binding Valeur, Mode=OneWay}" IsReadOnly="True" BorderThickness="0"
+                                             Background="Transparent" FontWeight="SemiBold" TextWrapping="Wrap" Padding="0"
+                                             ToolTip="Vous pouvez sélectionner et copier ce texte" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Responsable (pour un enfant) -->
+                    <StackPanel Visibility="{Binding AResponsable, Converter={StaticResource SiVrai}}">
+                        <Border BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Margin="0,6,0,16" />
+                        <TextBlock Text="Responsable" Style="{StaticResource Titre3}" Margin="0,0,0,10" />
+                        <Button Style="{StaticResource BoutonCarte}" Command="{Binding OuvrirResponsable}" ToolTip="Ouvrir la fiche du responsable">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Responsable}" FontWeight="Bold" />
+                                <TextBlock Text="{Binding ContactResponsable}" Style="{StaticResource StyleTexteDiscret}" FontSize="14" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Enfants dont il est responsable -->
+                    <StackPanel Visibility="{Binding AEnfants, Converter={StaticResource SiVrai}}">
+                        <Border BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Margin="0,6,0,16" />
+                        <TextBlock Text="Responsable de" Style="{StaticResource Titre3}" Margin="0,0,0,10" />
+                        <ItemsControl ItemsSource="{Binding Enfants}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:EnfantFiche}">
+                                    <Button Style="{StaticResource BoutonCarte}" Command="{Binding Ouvrir}" Margin="0,0,0,8"
+                                            ToolTip="Ouvrir la fiche">
+                                        <DockPanel>
+                                            <Border Width="36" Height="36" CornerRadius="18" Background="White">
+                                                <TextBlock Text="{Binding Initiales}" Style="{StaticResource StyleAvatarTexte}" FontSize="13" />
+                                            </Border>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Info}" Style="{StaticResource StyleTexteDiscret}"
+                                                       FontSize="14" VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding NomAffiche}" FontWeight="Bold" Margin="12,0" VerticalAlignment="Center" />
+                                        </DockPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Cotisation -->
+                    <Border BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Margin="0,6,0,16" />
+                    <TextBlock Text="{Binding TitreCotisation}" Style="{StaticResource Titre3}" Margin="0,0,0,10" />
+                    <WrapPanel>
+                        <Border Style="{StaticResource PastilleVerte}" Padding="14,6" Margin="0,0,10,0"
+                                Visibility="{Binding CotisationPayee, Converter={StaticResource SiVrai}}">
+                            <TextBlock Text="{Binding CotisationTexte}" FontWeight="Bold" Foreground="{StaticResource Vert}" FontSize="15" />
+                        </Border>
+                        <Border Style="{StaticResource PastilleOrange}" Padding="14,6" Margin="0,0,10,0"
+                                Visibility="{Binding CotisationARegler, Converter={StaticResource SiVrai}}">
+                            <TextBlock Text="{Binding CotisationTexte}" FontWeight="Bold" Foreground="{StaticResource Orange}" FontSize="15" />
+                        </Border>
+                        <TextBlock Text="{Binding CotisationDetail}" Style="{StaticResource StyleTexteDiscret}" VerticalAlignment="Center" />
+                    </WrapPanel>
+                    <Button Style="{StaticResource BoutonContour}" Content="Encaisser la cotisation" HorizontalAlignment="Left" Margin="0,12,0,0"
+                            Command="{Binding DataContext.EncaisserFicheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Visibility="{Binding CotisationARegler, Converter={StaticResource SiVrai}}" />
+
+                    <!-- Activités -->
+                    <StackPanel Visibility="{Binding AActivites, Converter={StaticResource SiVrai}}">
+                        <Border BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Margin="0,16,0,16" />
+                        <TextBlock Text="Activités" Style="{StaticResource Titre3}" Margin="0,0,0,10" />
+                        <ItemsControl ItemsSource="{Binding Activites}" Focusable="False">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type vm:PastilleActivite}">
+                                    <Border Background="{StaticResource Fond}" CornerRadius="999" Padding="12,6" Margin="0,0,8,8">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="10" Height="10" Fill="{Binding Couleur}" VerticalAlignment="Center" />
+                                            <TextBlock Text="{Binding Nom}" Margin="8,0,0,0" FontWeight="SemiBold" FontSize="15" />
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <!-- Notes -->
+                    <StackPanel Visibility="{Binding ANotes, Converter={StaticResource SiVrai}}">
+                        <Border BorderBrush="{StaticResource Separateur}" BorderThickness="0,1,0,0" Margin="0,8,0,16" />
+                        <TextBlock Text="Notes" Style="{StaticResource Titre3}" Margin="0,0,0,8" />
+                        <TextBlock Text="{Binding Notes}" TextWrapping="Wrap" />
+                    </StackPanel>
+
+                    <!-- Actions -->
+                    <UniformGrid Columns="2" Margin="0,24,0,0">
+                        <Button Style="{StaticResource BoutonPrincipal}" Content="Modifier" Margin="0,0,6,0"
+                                Command="{Binding DataContext.ModifierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                        <Button Style="{StaticResource BoutonSecondaire}" Content="Envoyer un mail" Margin="6,0,0,0" FontWeight="Bold"
+                                IsEnabled="{Binding AEmailOuResponsable}"
+                                Command="{Binding DataContext.MailFicheCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                    </UniformGrid>
+                    <Button Style="{StaticResource BoutonDanger}" Content="Supprimer cet adhérent" HorizontalAlignment="Center" Margin="0,12,0,0"
+                            Command="{Binding DataContext.SupprimerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</UserControl>

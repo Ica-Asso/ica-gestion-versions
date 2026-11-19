@@ -1,0 +1,48 @@
+# ============================================================
+#  DONNÉES RÉELLES : ne JAMAIS les envoyer sur GitHub (CDC §46)
+# ============================================================
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+*.ods
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.json.bak
+*.illisible-*
+backups/
+ICA_Backup_*.zip
+ICA-Assistance-*.zip
+# Exception : fichiers d'exemple 100 % fictifs
+!samples/*
+
+# Secrets
+google-client*.json
+client_secret*.json
+appsettings.*.local.json
+*.pfx
+*.snk
+.env
+secrets/
+
+# Build .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+TestResults/
+*.binlog
+publish/
+Releases/
+.idea/
+.vscode/
+
+# Version préparée pour la clé USB
+Pour la cle USB/
+publication.log
+lancement.log
+_archives/

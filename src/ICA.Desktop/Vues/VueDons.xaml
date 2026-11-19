@@ -1,0 +1,277 @@
+<UserControl x:Class="ICA.Desktop.Vues.VueDons"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:ICA.Client.ViewModels;assembly=ICA.Client">
+    <UserControl.Resources>
+        <Style x:Key="ChiffreDon" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="26" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource Bordeaux}" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+        <StackPanel Margin="40,52,40,32">
+
+            <!-- ================= En-tête ================= -->
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Année" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{StaticResource TexteSecondaire}" />
+                    <ComboBox Style="{StaticResource Liste}" Width="130" Margin="12,0,0,0" FontWeight="Bold"
+                              ItemsSource="{Binding Annees}" SelectedItem="{Binding Annee}" AutomationProperties.Name="Année" />
+                </StackPanel>
+                <TextBlock Text="Dons &amp; Mécénat" Style="{StaticResource Titre1}" VerticalAlignment="Center" />
+            </DockPanel>
+
+            <!-- Statut fiscal -->
+            <Border CornerRadius="10" Padding="14,10" Margin="0,14,0,0" Background="{StaticResource OrangeClair}"
+                    Visibility="{Binding RecusFiscauxInactifs, Converter={StaticResource SiVrai}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource BoutonLien}" Content="Paramètres de l'association" Command="{Binding AssociationCommand}" />
+                    <TextBlock Text="{Binding StatutFiscal}" Foreground="{StaticResource Orange}" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+            <Border CornerRadius="10" Padding="14,10" Margin="0,14,0,0" Background="{StaticResource VertClair}"
+                    Visibility="{Binding RecusFiscauxActifs, Converter={StaticResource SiVrai}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Style="{StaticResource BoutonLien}" Content="Paramètres de l'association" Command="{Binding AssociationCommand}" />
+                    <TextBlock Text="{Binding StatutFiscal}" Foreground="{StaticResource Vert}" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap" />
+                </DockPanel>
+            </Border>
+
+            <!-- ================= Chiffres de l'année ================= -->
+            <UniformGrid Columns="5" Margin="0,16,0,0">
+                <Border Style="{StaticResource StyleCarte}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding TotalFinancier}" Style="{StaticResource ChiffreDon}" />
+                        <TextBlock Text="Dons financiers reçus" Style="{StaticResource StyleTexteDiscret}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StyleCarte}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding TotalNature}" Style="{StaticResource ChiffreDon}" />
+                        <TextBlock Text="En nature (valeur déclarée)" Style="{StaticResource StyleTexteDiscret}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StyleCarte}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding NombreEntreprises}" Style="{StaticResource ChiffreDon}" />
+                        <TextBlock Text="Entreprises donatrices" Style="{StaticResource StyleTexteDiscret}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StyleCarte}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="{Binding NombreDons}" Style="{StaticResource ChiffreDon}" />
+                        <TextBlock Text="Dons enregistrés" Style="{StaticResource StyleTexteDiscret}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource StyleCarte}" ToolTip="{Binding DetailJustificatifs}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding NombreJustificatifs}" Style="{StaticResource ChiffreDon}" />
+                        <TextBlock Text="Justificatifs émis" Style="{StaticResource StyleTexteDiscret}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ================= Actions ================= -->
+            <WrapPanel Margin="0,18,0,0">
+                <Button Style="{StaticResource BoutonPrincipal}" Command="{Binding NouveauDonCommand}" Margin="0,0,12,10" MinHeight="54" FontSize="17" Padding="22,0">
+                    <StackPanel Orientation="Horizontal">
+                        <Path Data="{StaticResource Ico.plus}" Style="{StaticResource Icone}" StrokeThickness="2.4" />
+                        <TextBlock Text="Nouveau don" Margin="10,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource BoutonSecondaire}" Content="Nouvelle entreprise" Command="{Binding NouvelleEntrepriseCommand}" Margin="0,0,12,10" FontWeight="Bold" />
+                <Button Style="{StaticResource BoutonSecondaire}" Content="Bilan PDF" Command="{Binding BilanPdfCommand}" Margin="0,0,12,10" FontWeight="Bold" />
+                <Button Style="{StaticResource BoutonSecondaire}" Content="Export Excel" Command="{Binding BilanExcelCommand}" Margin="0,0,12,10" FontWeight="Bold" />
+            </WrapPanel>
+
+            <!-- ================= À traiter ================= -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,6,0,0" Visibility="{Binding RienATraiter, Converter={StaticResource SiFaux}}">
+                <StackPanel>
+                    <TextBlock Text="À traiter" Style="{StaticResource Titre2}" />
+                    <ItemsControl ItemsSource="{Binding ATraiter}" Margin="0,8,0,0" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ElementATraiter}">
+                                <DockPanel Margin="0,6,0,0">
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource BoutonSecondaire}" Content="{Binding Bouton}" Command="{Binding Action}"
+                                            MinHeight="38" FontWeight="Bold" />
+                                    <Ellipse Width="8" Height="8" Fill="{StaticResource OrangeVif}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                    <TextBlock Text="{Binding Texte}" FontSize="15" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= Onglets + recherche ================= -->
+            <DockPanel Margin="0,22,0,0">
+                <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
+                    <RadioButton Style="{StaticResource Segment}" Content="Dons" Width="140" Margin="0,0,8,0" IsChecked="{Binding OngletDons}" />
+                    <RadioButton Style="{StaticResource Segment}" Content="Entreprises" Width="160" Margin="0,0,8,0" IsChecked="{Binding OngletEntreprises}" />
+                    <RadioButton Style="{StaticResource Segment}" Content="Justificatifs" Width="160" IsChecked="{Binding OngletJustificatifs}" />
+                </StackPanel>
+                <TextBox Style="{StaticResource ChampRecherche}" Text="{Binding Recherche, UpdateSourceTrigger=PropertyChanged, Delay=250}" Margin="16,0,0,0"
+                         Tag="Rechercher : entreprise, montant, date, n° de document…" AutomationProperties.Name="Rechercher" />
+            </DockPanel>
+            <WrapPanel Margin="0,10,0,0">
+                <ComboBox Style="{StaticResource Liste}" Width="200" Margin="0,0,10,0" ItemsSource="{Binding FiltresType}" SelectedItem="{Binding FiltreType}"
+                          DisplayMemberPath="Libelle" AutomationProperties.Name="Filtrer par type" />
+                <ComboBox Style="{StaticResource Liste}" Width="200" Margin="0,0,10,0" ItemsSource="{Binding FiltresStatut}" SelectedItem="{Binding FiltreStatut}"
+                          DisplayMemberPath="Libelle" AutomationProperties.Name="Filtrer par statut" />
+                <ComboBox Style="{StaticResource Liste}" Width="220" ItemsSource="{Binding FiltresDocument}" SelectedItem="{Binding FiltreDocument}"
+                          DisplayMemberPath="Libelle" AutomationProperties.Name="Filtrer par document" />
+            </WrapPanel>
+
+            <!-- ================= Liste des dons ================= -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,12,0,0" Padding="0" Visibility="{Binding OngletDons, Converter={StaticResource SiVrai}}">
+                <StackPanel>
+                    <Grid Margin="20,14,20,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2.2*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="2.2*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Entreprise" FontWeight="Bold" Foreground="{StaticResource TexteSecondaire}" />
+                        <TextBlock Grid.Column="1" Text="Date" FontWeight="Bold" Foreground="{StaticResource TexteSecondaire}" />
+                        <TextBlock Grid.Column="2" Text="Montant" FontWeight="Bold" Foreground="{StaticResource TexteSecondaire}" />
+                        <TextBlock Grid.Column="3" Text="Type" FontWeight="Bold" Foreground="{StaticResource TexteSecondaire}" />
+                        <TextBlock Grid.Column="4" Text="Document" FontWeight="Bold" Foreground="{StaticResource TexteSecondaire}" />
+                    </Grid>
+                    <TextBlock Text="Aucun don pour cette année (ou pour cette recherche). Cliquez sur « Nouveau don » pour commencer."
+                               Style="{StaticResource StyleTexteDiscret}" Margin="20,4,20,20" TextWrapping="Wrap"
+                               Visibility="{Binding AucunDon, Converter={StaticResource SiVrai}}" />
+                    <ItemsControl ItemsSource="{Binding LignesDons}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:LigneDonListe}">
+                                <Border BorderBrush="{StaticResource Bordure}" BorderThickness="0,1,0,0" Padding="20,12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2.2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="2.2*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Entreprise}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                            <TextBlock Text="{Binding Statut}" FontSize="13" Foreground="{StaticResource TexteDiscret}" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1" Text="{Binding Date}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Montant}" FontWeight="Bold" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="3" Text="{Binding Type}" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Document}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"
+                                                   Foreground="{StaticResource TexteSecondaire}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Document}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"
+                                                   FontWeight="SemiBold" Foreground="{StaticResource Orange}" Background="White"
+                                                   Visibility="{Binding DocumentAttention, Converter={StaticResource SiVrai}}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Document}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"
+                                                   FontWeight="SemiBold" Foreground="{StaticResource Vert}" Background="White"
+                                                   Visibility="{Binding DocumentOk, Converter={StaticResource SiVrai}}" />
+                                        <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Style="{StaticResource BoutonPrincipal}" Content="Générer" Command="{Binding Justifier}" MinHeight="38" Margin="0,0,8,0"
+                                                    Visibility="{Binding PeutJustifier, Converter={StaticResource SiVrai}}" />
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Voir" Command="{Binding VoirDocument}" MinHeight="38" Margin="0,0,8,0"
+                                                    Visibility="{Binding AJustificatif, Converter={StaticResource SiVrai}}" />
+                                            <Button Style="{StaticResource BoutonLien}" Content="Modifier" Command="{Binding Modifier}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= Annuaire des entreprises ================= -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,12,0,0" Padding="0" Visibility="{Binding OngletEntreprises, Converter={StaticResource SiVrai}}">
+                <StackPanel>
+                    <TextBlock Text="Aucune entreprise dans l'annuaire. Cliquez sur « Nouvelle entreprise »." Style="{StaticResource StyleTexteDiscret}"
+                               Margin="20,18,20,20" Visibility="{Binding AucuneEntreprise, Converter={StaticResource SiVrai}}" />
+                    <ItemsControl ItemsSource="{Binding LignesEntreprises}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:LigneEntrepriseListe}">
+                                <Border BorderBrush="{StaticResource Bordure}" BorderThickness="0,0,0,1" Padding="20,14">
+                                    <DockPanel>
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Nouveau don" Command="{Binding NouveauDon}" MinHeight="38" Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource BoutonLien}" Content="Modifier" Command="{Binding Modifier}" Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource BoutonDanger}" Content="Retirer" Command="{Binding Retirer}" FontSize="14" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock FontSize="17">
+                                                <Run Text="{Binding Nom, Mode=OneWay}" FontWeight="Bold" />
+                                                <Run Text="{Binding Siren, Mode=OneWay, StringFormat='  SIREN {0}'}" FontSize="14" Foreground="{StaticResource TexteDiscret}" />
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Contact}" FontSize="14" Foreground="{StaticResource TexteSecondaire}"
+                                                       Visibility="{Binding Contact, Converter={StaticResource SiRempli}}" />
+                                            <TextBlock Text="{Binding Dons}" FontSize="14" FontWeight="SemiBold" Foreground="{StaticResource Bordeaux}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ================= Justificatifs ================= -->
+            <Border Style="{StaticResource StyleCarte}" Margin="0,12,0,0" Padding="0" Visibility="{Binding OngletJustificatifs, Converter={StaticResource SiVrai}}">
+                <StackPanel>
+                    <TextBlock Text="Aucun justificatif émis pour cette année." Style="{StaticResource StyleTexteDiscret}" Margin="20,18,20,20"
+                               Visibility="{Binding AucunJustificatif, Converter={StaticResource SiVrai}}" />
+                    <ItemsControl ItemsSource="{Binding LignesJustificatifs}" Focusable="False">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:LigneJustificatifListe}">
+                                <Border x:Name="Cadre" BorderBrush="{StaticResource Bordure}" BorderThickness="0,0,0,1" Padding="20,14">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding Montant}" FontSize="17" FontWeight="Bold" VerticalAlignment="Center" />
+                                            <StackPanel>
+                                                <TextBlock FontSize="17">
+                                                    <Run Text="{Binding Numero, Mode=OneWay}" FontWeight="Bold" />
+                                                    <Run Text="{Binding Type, Mode=OneWay, StringFormat=' · {0}'}" Foreground="{StaticResource TexteSecondaire}" />
+                                                    <Run Text="{Binding Entreprise, Mode=OneWay, StringFormat=' · {0}'}" />
+                                                </TextBlock>
+                                                <TextBlock FontSize="14" Foreground="{StaticResource TexteSecondaire}">
+                                                    <Run Text="{Binding Date, Mode=OneWay, StringFormat='Émis le {0} — '}" />
+                                                    <Run Text="{Binding Statut, Mode=OneWay}" FontWeight="SemiBold" />
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DockPanel>
+                                        <WrapPanel Margin="0,10,0,0">
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Voir" Command="{Binding Voir}" MinHeight="38" Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Imprimer" Command="{Binding Imprimer}" MinHeight="38" Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Télécharger" Command="{Binding Telecharger}" MinHeight="38" Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource BoutonPrincipal}" Content="Envoyer" Command="{Binding Envoyer}" MinHeight="38" Margin="0,0,8,0"
+                                                    Visibility="{Binding EstActif, Converter={StaticResource SiVrai}}" />
+                                            <Button Style="{StaticResource BoutonLien}" Content="Remplacer" Command="{Binding Remplacer}" Margin="0,0,8,0"
+                                                    Visibility="{Binding EstActif, Converter={StaticResource SiVrai}}" />
+                                            <Button Style="{StaticResource BoutonLien}" Content="Historique" Command="{Binding Historique}" Margin="0,0,8,0" />
+                                            <Button Style="{StaticResource BoutonDanger}" Content="Annuler le document" Command="{Binding Annuler}" FontSize="14"
+                                                    Visibility="{Binding EstActif, Converter={StaticResource SiVrai}}" />
+                                        </WrapPanel>
+                                    </StackPanel>
+                                </Border>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding EstInactif}" Value="True">
+                                        <Setter TargetName="Cadre" Property="Background" Value="{StaticResource Fond}" />
+                                        <Setter TargetName="Cadre" Property="Opacity" Value="0.75" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Margin="0,16,0,0" Style="{StaticResource StyleTexteDiscret}" FontSize="13" TextWrapping="Wrap"
+                       Text="Chaque document émis est conservé tel quel (sur cet ordinateur et dans le Google Drive de l'association). Un numéro n'est jamais réutilisé : pour corriger, « Remplacer » émet un nouveau document qui annule le précédent." />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
