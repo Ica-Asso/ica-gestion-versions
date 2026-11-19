@@ -1,1 +1,1 @@
-Les fenêtres de saisie ne dépassent plus de l'écran (la croix et les boutons restent visibles).
+Fenêtres de saisie : toujours entièrement sur l'écran de l'application (configurations à plusieurs écrans).

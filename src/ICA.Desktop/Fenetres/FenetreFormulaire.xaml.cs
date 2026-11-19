@@ -13,14 +13,22 @@ public partial class FenetreFormulaire : Window
         FenetreArrondie.Appliquer(this, redimensionnable: false);
         DataContext = vm;
         Width = vm.LargeurFenetre;
-        // Jamais plus haute que l'écran (barre des tâches comprise) : le contenu défile à l'intérieur,
-        // et la croix comme les boutons Annuler / Enregistrer restent visibles.
-        var ecran = SystemParameters.WorkArea;
-        MaxHeight = ecran.Height - 20;
+        // Jamais plus haute que l'écran où est ouverte l'application (plusieurs écrans possibles) :
+        // le contenu défile à l'intérieur, la croix et les boutons Annuler / Enregistrer restent visibles.
         vm.Fermer += (_, valide) => DialogResult = valide;
+        SourceInitialized += (_, _) => MaxHeight = Ecrans.ZoneUtile(Owner ?? this).Height - 20;
         Loaded += (_, _) =>
         {
-            if (Top < ecran.Top || Top + ActualHeight > ecran.Bottom) Top = ecran.Top + Math.Max(10, (ecran.Height - ActualHeight) / 2);
+            var ecran = Ecrans.ZoneUtile(Owner ?? this);
+            MaxHeight = ecran.Height - 20;
+            UpdateLayout();
+            var hauteur = Math.Min(ActualHeight, MaxHeight);
+            var largeur = ActualWidth;
+            // Centrée dans l'écran de l'application, entièrement visible.
+            var centreX = ecran.Left + ecran.Width / 2;
+            var centreY = ecran.Top + ecran.Height / 2;
+            Left = Math.Clamp(centreX - largeur / 2, ecran.Left, Math.Max(ecran.Left, ecran.Right - largeur));
+            Top = Math.Clamp(centreY - hauteur / 2, ecran.Top + 10, Math.Max(ecran.Top + 10, ecran.Bottom - hauteur - 10));
             MoveFocus(new System.Windows.Input.TraversalRequest(System.Windows.Input.FocusNavigationDirection.First));
         };
     }
