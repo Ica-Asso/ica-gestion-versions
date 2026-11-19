@@ -332,8 +332,8 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Signataire habilité (prénom NOM)" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
-                        <TextBox Style="{StaticResource Champ}" Text="{Binding SignataireNom, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Signataire" />
+                        <TextBlock Text="Signataire habilité" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
+                        <TextBox Style="{StaticResource Champ}" Text="{Binding SignataireNom, UpdateSourceTrigger=PropertyChanged}" Tag="Prénom NOM" AutomationProperties.Name="Signataire" />
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="Fonction" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
@@ -375,7 +375,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="16" />
-                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="240" />
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="Référence du rescrit" Style="{StaticResource Libelle}" Margin="0,0,0,6" />

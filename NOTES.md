@@ -1,1 +1,1 @@
-Fiche entreprise plus claire : l'entreprise en haut, la personne à contacter en bas ; liste des formes juridiques corrigée.
+Les fenêtres de saisie ne dépassent plus de l'écran (la croix et les boutons restent visibles).
