@@ -11,6 +11,7 @@
         <!-- ================= Entreprise ================= -->
         <DataTemplate DataType="{x:Type vm:EditionEntrepriseViewModel}">
             <StackPanel>
+                <TextBlock Text="L'entreprise" Style="{StaticResource Titre3}" Margin="0,0,0,10" />
                 <TextBlock Text="Raison sociale *" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
                 <TextBox Style="{StaticResource Champ}" Text="{Binding RaisonSociale, UpdateSourceTrigger=PropertyChanged}" Tag="Exemple : Boulangerie Martin"
                          AutomationProperties.Name="Raison sociale" />
@@ -24,8 +25,8 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel>
                         <TextBlock Text="Forme juridique" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
-                        <ComboBox Style="{StaticResource Liste}" IsEditable="True" ItemsSource="{Binding FormesJuridiques}"
-                                  Text="{Binding FormeJuridique, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Forme juridique" />
+                        <ComboBox Style="{StaticResource Liste}" ItemsSource="{Binding FormesJuridiques}" SelectedItem="{Binding FormeJuridique}"
+                                  AutomationProperties.Name="Forme juridique" />
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="N° SIREN (9 chiffres)" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
@@ -39,6 +40,11 @@
                     </StackPanel>
                 </Grid>
 
+                <StackPanel Visibility="{Binding FormeAutreVisible, Converter={StaticResource SiVrai}}">
+                    <TextBlock Text="Précisez la forme juridique" Style="{StaticResource Libelle}" Margin="0,14,0,6" />
+                    <TextBox Style="{StaticResource Champ}" Text="{Binding FormeAutre, UpdateSourceTrigger=PropertyChanged}" Tag="Exemple : SCA, coopérative…"
+                             AutomationProperties.Name="Forme juridique précisée" />
+                </StackPanel>
                 <TextBlock Text="Adresse (numéro et rue)" Style="{StaticResource Libelle}" Margin="0,14,0,6" />
                 <TextBox Style="{StaticResource Champ}" Text="{Binding Adresse, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="Adresse" />
                 <Grid Margin="0,14,0,0">
@@ -57,7 +63,8 @@
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="Contact dans l'entreprise" Style="{StaticResource Titre3}" Margin="0,20,0,0" />
+                <TextBlock Text="La personne à contacter dans l'entreprise" Style="{StaticResource Titre3}" Margin="0,26,0,0" />
+                <TextBlock Text="C'est à cette personne que les justificatifs sont envoyés par e-mail." Style="{StaticResource StyleTexteDiscret}" FontSize="14" />
                 <Grid Margin="0,8,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -80,7 +87,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <StackPanel>
-                        <TextBlock Text="Adresse e-mail (pour envoyer les justificatifs)" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
+                        <TextBlock Text="Adresse e-mail" Style="{StaticResource Libelle}" Margin="0,0,0,6" />
                         <TextBox Style="{StaticResource Champ}" Text="{Binding EmailEntreprise, UpdateSourceTrigger=PropertyChanged}" AutomationProperties.Name="E-mail" />
                     </StackPanel>
                     <StackPanel Grid.Column="2">

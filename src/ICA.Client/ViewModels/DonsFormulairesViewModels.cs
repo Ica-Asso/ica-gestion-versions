@@ -69,8 +69,16 @@ public sealed class EditionEntrepriseViewModel : FormulaireViewModel
             Adresse = e.Adresse, CodePostal = e.CodePostal, Ville = e.Ville, ContactNom = e.ContactNom, ContactPrenom = e.ContactPrenom,
             Email = e.Email, Telephone = e.Telephone is { } t ? Telephone.Afficher(t) : null, Notes = e.Notes,
         };
+        // Forme juridique : choisie dans la liste ; une forme absente de la liste passe dans « Autre (précisez) ».
+        if (string.IsNullOrWhiteSpace(e.FormeJuridique)) _forme = null;
+        else if (FormesJuridiques.Contains(e.FormeJuridique)) _forme = e.FormeJuridique;
+        else { _forme = AutreForme; _formeAutre = e.FormeJuridique; }
         EnregistrerCommand = new RelayCommand(Enregistrer);
     }
+
+    private const string AutreForme = "Autre (précisez)";
+    private string? _forme;
+    private string? _formeAutre;
 
     public override string TitreFenetre => _nouvelle ? "Nouvelle entreprise" : "Modifier l'entreprise";
     public override double LargeurFenetre => 720;
@@ -78,7 +86,13 @@ public sealed class EditionEntrepriseViewModel : FormulaireViewModel
     public RelayCommand EnregistrerCommand { get; }
 
     public string RaisonSociale { get => _brouillon.RaisonSociale; set => _brouillon.RaisonSociale = value; }
-    public string? FormeJuridique { get => _brouillon.FormeJuridique; set => _brouillon.FormeJuridique = value; }
+    public string? FormeJuridique
+    {
+        get => _forme;
+        set { if (SetProperty(ref _forme, value)) OnPropertyChanged(nameof(FormeAutreVisible)); }
+    }
+    public bool FormeAutreVisible => _forme == AutreForme;
+    public string? FormeAutre { get => _formeAutre; set => _formeAutre = value; }
     public string? NumeroSiren { get => _brouillon.Siren; set => _brouillon.Siren = value; }
     public string? NumeroSiret { get => _brouillon.Siret; set => _brouillon.Siret = value; }
     public string? Adresse { get => _brouillon.Adresse; set => _brouillon.Adresse = value; }
@@ -91,13 +105,14 @@ public sealed class EditionEntrepriseViewModel : FormulaireViewModel
     public string? Notes { get => _brouillon.Notes; set => _brouillon.Notes = value; }
 
     public IReadOnlyList<string> FormesJuridiques { get; } =
-        ["SARL", "SAS", "SASU", "EURL", "SA", "SNC", "SCI", "Entreprise individuelle", "Micro-entreprise", "Association", "Autre"];
+        ["SARL", "SAS", "SASU", "EURL", "SA", "SNC", "SCI", "SCOP", "SELARL", "GIE", "Entreprise individuelle", "Micro-entreprise", "Association", "Autre (précisez)"];
 
     private void Enregistrer()
     {
         var e = new DonateurEntreprise
         {
-            Id = _brouillon.Id, RaisonSociale = _brouillon.RaisonSociale ?? "", FormeJuridique = Nettoyer(_brouillon.FormeJuridique),
+            Id = _brouillon.Id, RaisonSociale = _brouillon.RaisonSociale ?? "",
+            FormeJuridique = _forme == AutreForme ? Nettoyer(_formeAutre) : Nettoyer(_forme),
             Siren = Nettoyer(_brouillon.Siren), Siret = Nettoyer(_brouillon.Siret), Adresse = Nettoyer(_brouillon.Adresse),
             CodePostal = Nettoyer(_brouillon.CodePostal), Ville = Nettoyer(_brouillon.Ville), ContactNom = Nettoyer(_brouillon.ContactNom),
             ContactPrenom = Nettoyer(_brouillon.ContactPrenom), Email = Nettoyer(_brouillon.Email), Telephone = Nettoyer(_brouillon.Telephone),
