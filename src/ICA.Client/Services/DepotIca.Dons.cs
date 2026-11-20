@@ -180,6 +180,21 @@ public sealed partial class DepotIca
         Dons.Where(d => d.Id != candidat.Id && d.EntrepriseId == candidat.EntrepriseId && d.Date == candidat.Date
                         && d.Type == candidat.Type && d.Montant == candidat.Montant && d.Statut != StatutDon.Annule).ToList();
 
+    /// <summary>
+    /// Supprime un don saisi par erreur (ou de test). Impossible tant qu'un justificatif en vigueur le couvre :
+    /// annulez d'abord ce justificatif (il reste dans l'historique, son numéro n'est jamais réutilisé).
+    /// </summary>
+    public Resultat SupprimerDon(Guid id)
+    {
+        if (TrouverDon(id) is not { } d) return Resultat.Ok();
+        if (JustificatifDe(id) is { } j)
+            return Resultat.Echec("", $"Ce don figure sur le justificatif {j.Numero}. Annulez d'abord ce justificatif (onglet Justificatifs), puis supprimez le don.");
+        d.Supprimer(_temps.GetUtcNow());
+        Tracer("Don supprimé", id, $"{RegleDon.Libelle(d.Type)}, {(d.Montant is { } m ? Libelles.Montant(m) : "sans montant")}, {d.Date:dd/MM/yyyy}");
+        Enregistrer();
+        return Resultat.Ok();
+    }
+
     public Resultat EnregistrerDon(Don d)
     {
         if (d.Type != TypeDon.Financier) d.Mode = null;

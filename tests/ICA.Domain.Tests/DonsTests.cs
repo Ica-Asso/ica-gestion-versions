@@ -294,3 +294,46 @@ public class RecuFiscalConformiteTests
         Assert.Contains("16216*03", texte);
     }
 }
+
+public class SuppressionDonTests
+{
+    [Fact]
+    public async Task Don_de_test_supprime_puis_entreprise_retiree()
+    {
+        var depot = new ICA.Client.Services.DepotIca(new StockageMemoireDons(), new JournalMuetDons(), new ICA.Client.Configuration.ParametresApplication());
+        var e = new DonateurEntreprise { RaisonSociale = "Entreprise Test" };
+        Assert.True(depot.EnregistrerEntreprise(e).Reussi);
+        var d = new Don { EntrepriseId = e.Id, Date = depot.AujourdHui, Type = TypeDon.Financier, Montant = 10, Mode = ModeVersementDon.Especes };
+        Assert.True(depot.EnregistrerDon(d).Reussi);
+
+        var dossier = Path.Combine(Path.GetTempPath(), "ica-tests-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var j = await new ICA.Client.Services.ServiceJustificatifs(depot, dossier, null, new JournalMuetDons()).EmettreAsync(TypeJustificatif.Attestation, e, [d]);
+            Assert.False(depot.SupprimerDon(d.Id).Reussi);          // couvert par un justificatif
+            depot.AnnulerJustificatif(j.Id, "Test");
+            Assert.True(depot.SupprimerDon(d.Id).Reussi);
+            Assert.Null(depot.TrouverDon(d.Id));
+            Assert.True(depot.SupprimerEntreprise(e.Id).Reussi);
+            Assert.Empty(depot.Entreprises);
+        }
+        finally { if (Directory.Exists(dossier)) Directory.Delete(dossier, true); }
+    }
+}
+
+internal sealed class StockageMemoireDons : ICA.Client.Donnees.IStockage
+{
+    public DonneesIca? Donnees { get; private set; }
+    public string Emplacement => "mémoire";
+    public DonneesIca? Charger() => Donnees;
+    public void Enregistrer(DonneesIca donnees) => Donnees = donnees;
+}
+
+internal sealed class JournalMuetDons : ICA.Client.Journal.IJournal
+{
+    public string Dossier => "";
+    public void Info(string message) { }
+    public void Avertissement(string message) { }
+    public void Erreur(string message, Exception? exception = null) { }
+    public IReadOnlyList<string> DernieresLignes(int nombre) => [];
+}

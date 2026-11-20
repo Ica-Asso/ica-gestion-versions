@@ -173,12 +173,26 @@ public sealed class EditionDonViewModel : FormulaireViewModel
 
         EnregistrerCommand = new RelayCommand(Enregistrer);
         NouvelleEntrepriseCommand = new RelayCommand(NouvelleEntreprise);
+        SupprimerCommand = new RelayCommand(Supprimer);
     }
 
     public override string TitreFenetre => _nouveau ? "Nouveau don" : "Modifier le don";
     public override double LargeurFenetre => 720;
     public RelayCommand EnregistrerCommand { get; }
     public RelayCommand NouvelleEntrepriseCommand { get; }
+    public RelayCommand SupprimerCommand { get; }
+    public bool PeutSupprimer => !_nouveau;
+
+    private void Supprimer()
+    {
+        if (!_ctx.Plateforme.Confirmer("Supprimer ce don ?",
+                "Le don disparaît de la liste et des totaux (une trace reste dans l'historique). À utiliser pour une erreur de saisie ou un test.",
+                "Supprimer", danger: true))
+            return;
+        var r = _ctx.Depot.SupprimerDon(_id);
+        if (!r.Reussi) { Erreur = r.Erreurs[0].Message; return; }
+        Terminer(true);
+    }
     public Guid? IdEnregistre { get; private set; }
 
     public IReadOnlyList<DonateurEntreprise> Entreprises { get => _entreprises; private set => SetProperty(ref _entreprises, value); }
