@@ -72,7 +72,7 @@ public sealed class ServicesWindows : IServicesPlateforme
             image.BeginInit();
             image.CacheOption = BitmapCacheOption.OnLoad;
             image.UriSource = new Uri(chemin);
-            image.DecodePixelWidth = 600; // largeur suffisante pour une signature imprimée
+            image.DecodePixelWidth = 1600; // assez de détail même après recadrage d'une photo
             image.EndInit();
             image.Freeze();
 
@@ -86,8 +86,12 @@ public sealed class ServicesWindows : IServicesPlateforme
             var rendu = new RenderTargetBitmap(image.PixelWidth, image.PixelHeight, 96, 96, PixelFormats.Pbgra32);
             rendu.Render(visuel);
 
+            // On recadre au plus près du trait : le blanc autour rendait la signature minuscule sur le PDF.
+            BitmapSource resultat = rendu;
+            if (ZoneEncree(rendu) is { } zone) resultat = new CroppedBitmap(rendu, zone);
+
             var encodeur = new JpegBitmapEncoder { QualityLevel = 90 };
-            encodeur.Frames.Add(BitmapFrame.Create(rendu));
+            encodeur.Frames.Add(BitmapFrame.Create(resultat));
             using var flux = new MemoryStream();
             encodeur.Save(flux);
             return flux.ToArray();
@@ -96,6 +100,33 @@ public sealed class ServicesWindows : IServicesPlateforme
         {
             return null;
         }
+    }
+
+    /// <summary>Rectangle qui contient tous les pixels foncés (le trait), avec une petite marge ; null si l'image est vide.</summary>
+    private static Int32Rect? ZoneEncree(BitmapSource image)
+    {
+        int l = image.PixelWidth, h = image.PixelHeight, pas = l * 4;
+        var pixels = new byte[pas * h];
+        image.CopyPixels(pixels, pas, 0);
+        int gauche = l, haut = h, droite = -1, bas = -1;
+        for (var y = 0; y < h; y++)
+            for (var x = 0; x < l; x++)
+            {
+                var i = y * pas + x * 4;
+                var luminance = (pixels[i] * 0.114 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.299);
+                if (luminance > 190) continue; // papier, ombre légère
+                if (x < gauche) gauche = x;
+                if (x > droite) droite = x;
+                if (y < haut) haut = y;
+                if (y > bas) bas = y;
+            }
+        if (droite < 0) return null;
+        var marge = Math.Max(4, Math.Max(droite - gauche, bas - haut) / 30);
+        gauche = Math.Max(0, gauche - marge);
+        haut = Math.Max(0, haut - marge);
+        droite = Math.Min(l - 1, droite + marge);
+        bas = Math.Min(h - 1, bas + marge);
+        return new Int32Rect(gauche, haut, droite - gauche + 1, bas - haut + 1);
     }
 
     public void ImprimerFichier(string chemin)

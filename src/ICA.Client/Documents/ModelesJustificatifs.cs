@@ -234,11 +234,11 @@ public static class ModelesJustificatifs
 
         // ---- Date et signature ----
         var date = j.DateEmission ?? DateOnly.FromDateTime(DateTime.Today);
-        y = SautSiBesoin(pdf, y, 150);
+        y = SautSiBesoin(pdf, y, 170);
         pdf.Texte(Marge, y + 6, "Date et signature", 10, true);
         pdf.Texte(Marge, y + 22, $"Le {date:dd / MM / yyyy}", 10.5f);
         Signature(pdf, y, a, date, "Le représentant de l'organisme bénéficiaire", signature, afficherFaitA: false);
-        y += 130;
+        y += 150;
 
         // ---- Notes du formulaire ----
         y = SautSiBesoin(pdf, y, 90);
@@ -322,7 +322,7 @@ public static class ModelesJustificatifs
             "Madame, Monsieur,\n\n" +
             $"Au nom de l'association {a.Denomination}, nous vous remercions chaleureusement pour votre soutien.\n\n" +
             $"Vous trouverez ci-joint le reçu des dons et versements effectués par les entreprises (formulaire 2041-MEC-SD, Cerfa n° {CategoriesFiscales.ModeleEnVigueur}), " +
-            $"n° {j.Numero}, pour un montant total de {Euros(c.Total)}, au titre de la période {(c.DateDebut == c.DateFin ? $"du {c.DateDebut:dd/MM/yyyy}" : $"du {c.DateDebut:dd/MM/yyyy} au {c.DateFin:dd/MM/yyyy}")}.\n\n" +
+            $"n° {j.Numero}, pour un montant total de {Euros(c.Total)}, au titre {(c.DateDebut == c.DateFin ? $"de votre don du {c.DateDebut:dd/MM/yyyy}" : $"de vos dons du {c.DateDebut:dd/MM/yyyy} au {c.DateFin:dd/MM/yyyy}")}.\n\n" +
             "Grâce à votre contribution, nous pouvons poursuivre nos actions et activités associatives.\n\n" +
             "Nous vous prions d'agréer, Madame, Monsieur, l'expression de nos salutations distinguées.", 11, interligne: 1.4f);
 
@@ -494,7 +494,7 @@ public static class ModelesJustificatifs
     private static void Signature(DocumentPdf pdf, float y, IdentiteAssociation a, DateOnly date, string qualiteParDefaut,
         byte[]? image = null, bool afficherFaitA = true)
     {
-        y = SautSiBesoin(pdf, y, 120);
+        y = SautSiBesoin(pdf, y, 140);
         var x = Marge + Largeur / 2 + 20;
         var l = Largeur / 2 - 20;
         if (afficherFaitA)
@@ -502,15 +502,16 @@ public static class ModelesJustificatifs
         pdf.Texte(x, y + 18, string.IsNullOrWhiteSpace(a.SignataireNom) ? qualiteParDefaut : a.SignataireNom!, 10.5f, true);
         if (!string.IsNullOrWhiteSpace(a.SignataireQualite)) pdf.Texte(x, y + 32, a.SignataireQualite!, 10, couleur: Couleur.Gris);
         pdf.Texte(x, y + 52, "Signature :", 9, couleur: Couleur.Gris);
-        pdf.Cadre(x, y + 58, l, 60, trait: Couleur.GrisClair);
+        pdf.Cadre(x, y + 58, l, 80, trait: Couleur.GrisClair);
         if (image is null) return;
         try
         {
             var (li, hi, _) = DocumentPdf.LireJpeg(image);
-            var echelle = Math.Min((l - 12) / li, 52f / hi);
+            // La signature occupe tout le cadre (hors petite marge), en gardant ses proportions.
+            var echelle = Math.Min((l - 8) / li, 74f / hi);
             var w = li * echelle;
             var h = hi * echelle;
-            pdf.Image(image, x + (l - w) / 2, y + 62 + (52 - h) / 2, w, h);
+            pdf.Image(image, x + (l - w) / 2, y + 61 + (74 - h) / 2, w, h);
         }
         catch (InvalidDataException) { /* image illisible : cadre laissé vide pour signer à la main */ }
     }

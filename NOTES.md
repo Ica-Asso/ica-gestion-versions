@@ -1,1 +1,1 @@
-Justificatifs : bouton « Remis en main propre » (sans e-mail), qui retire le document de la liste À traiter.
+Signature plus grande sur les reçus, attestations et lettres ; l'image choisie est recadrée automatiquement au plus près du trait (choisissez à nouveau l'image pour en profiter).
