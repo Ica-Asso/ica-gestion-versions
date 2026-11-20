@@ -423,7 +423,9 @@ public sealed class EnvoiJustificatifViewModel : FormulaireViewModel
     public bool EnvoiDirect => _ctx.Justificatifs?.PeutEnvoyerDirectement == true;
     public bool PasEnvoiDirect => !EnvoiDirect;
     public string Expediteur => EnvoiDirect ? $"Envoi depuis {_ctx.Justificatifs!.Expediteur}" : "";
-    public string? DejaEnvoye => _j.DateEnvoi is { } d ? $"Déjà envoyé le {d.ToLocalTime():dd/MM/yyyy à HH:mm} à {_j.EnvoyeA}." : null;
+    public string? DejaEnvoye => _j.DateEnvoi is { } d
+        ? (_j.EnvoyeA == "remis en main propre" ? $"Déjà remis en main propre le {d.ToLocalTime():dd/MM/yyyy}." : $"Déjà envoyé le {d.ToLocalTime():dd/MM/yyyy à HH:mm} à {_j.EnvoyeA}.")
+        : null;
     public bool ADejaEnvoye => DejaEnvoye is not null;
 
     private bool Verifier()

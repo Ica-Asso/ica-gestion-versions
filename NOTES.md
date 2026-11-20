@@ -1,1 +1,1 @@
-Dons : bouton « Supprimer ce don » (erreur de saisie ou test) ; l'entreprise peut ensuite être retirée de l'annuaire.
+Justificatifs : bouton « Remis en main propre » (sans e-mail), qui retire le document de la liste À traiter.

@@ -96,6 +96,8 @@
                                 <DockPanel Margin="0,6,0,0">
                                     <Button DockPanel.Dock="Right" Style="{StaticResource BoutonSecondaire}" Content="{Binding Bouton}" Command="{Binding Action}"
                                             MinHeight="38" FontWeight="Bold" />
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource BoutonLien}" Content="{Binding BoutonSecondaire}" Command="{Binding ActionSecondaire}"
+                                            Margin="0,0,10,0" VerticalAlignment="Center" Visibility="{Binding ASecondaire, Converter={StaticResource SiVrai}}" />
                                     <Ellipse Width="8" Height="8" Fill="{StaticResource OrangeVif}" VerticalAlignment="Center" Margin="0,0,12,0" />
                                     <TextBlock Text="{Binding Texte}" FontSize="15" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" />
                                 </DockPanel>
@@ -250,6 +252,8 @@
                                             <Button Style="{StaticResource BoutonSecondaire}" Content="Télécharger" Command="{Binding Telecharger}" MinHeight="38" Margin="0,0,8,0" />
                                             <Button Style="{StaticResource BoutonPrincipal}" Content="Envoyer" Command="{Binding Envoyer}" MinHeight="38" Margin="0,0,8,0"
                                                     Visibility="{Binding EstActif, Converter={StaticResource SiVrai}}" />
+                                            <Button Style="{StaticResource BoutonSecondaire}" Content="Remis en main propre" Command="{Binding RemisEnMain}" MinHeight="38" Margin="0,0,8,0"
+                                                    Visibility="{Binding PeutMarquerRemis, Converter={StaticResource SiVrai}}" />
                                             <Button Style="{StaticResource BoutonLien}" Content="Remplacer" Command="{Binding Remplacer}" Margin="0,0,8,0"
                                                     Visibility="{Binding EstActif, Converter={StaticResource SiVrai}}" />
                                             <Button Style="{StaticResource BoutonLien}" Content="Historique" Command="{Binding Historique}" Margin="0,0,8,0" />

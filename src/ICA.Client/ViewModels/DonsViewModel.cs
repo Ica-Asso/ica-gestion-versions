@@ -17,9 +17,13 @@ public sealed record LigneEntrepriseListe(
 public sealed record LigneJustificatifListe(
     string Numero, string Type, string Entreprise, string Date, string Montant, string Statut,
     bool EstActif, bool EstEnvoye, bool EstInactif,
-    CommandeAsync Voir, CommandeAsync Imprimer, CommandeAsync Telecharger, RelayCommand Envoyer, RelayCommand Remplacer, RelayCommand Annuler, RelayCommand Historique);
+    CommandeAsync Voir, CommandeAsync Imprimer, CommandeAsync Telecharger, RelayCommand Envoyer, RelayCommand Remplacer, RelayCommand Annuler, RelayCommand Historique,
+    RelayCommand RemisEnMain, bool PeutMarquerRemis);
 
-public sealed record ElementATraiter(string Texte, RelayCommand Action, string Bouton);
+public sealed record ElementATraiter(string Texte, RelayCommand Action, string Bouton, RelayCommand? ActionSecondaire = null, string? BoutonSecondaire = null)
+{
+    public bool ASecondaire => ActionSecondaire is not null;
+}
 
 /// <summary>Page « Dons & Mécénat ».</summary>
 public sealed class DonsViewModel : ObservableObject
@@ -177,7 +181,7 @@ public sealed class DonsViewModel : ObservableObject
                 StatutDon.Annule => "Don annulé",
                 StatutDon.EnAttente => "En attente de réception",
                 _ when j is null => "À générer",
-                _ => $"{j.Numero} — {(j.DateEnvoi is null ? "à envoyer" : "envoyé")}",
+                _ => $"{j.Numero} — {(j.DateEnvoi is null ? "à envoyer" : j.EnvoyeA == "remis en main propre" ? "remis" : "envoyé")}",
             };
             var id = d.Id;
             LignesDons.Add(new LigneDonListe(entreprise, d.Date.ToString("dd/MM/yyyy", Fr), montant, RegleDon.Libelle(d.Type), RegleDon.Libelle(d.Statut), document,
@@ -218,6 +222,7 @@ public sealed class DonsViewModel : ObservableObject
             {
                 StatutJustificatif.Annule => $"Annulé — {j.MotifAnnulation}",
                 StatutJustificatif.Remplace => $"Remplacé par {depot.TrouverJustificatif(j.RemplacePar ?? Guid.Empty)?.Numero}",
+                _ when j.DateEnvoi is { } env && j.EnvoyeA == "remis en main propre" => $"Remis en main propre le {env.ToLocalTime():dd/MM/yyyy}",
                 _ when j.DateEnvoi is { } env => $"Envoyé le {env.ToLocalTime():dd/MM/yyyy} à {j.EnvoyeA}",
                 _ => "Émis — à envoyer",
             };
@@ -232,7 +237,9 @@ public sealed class DonsViewModel : ObservableObject
                 Envoyer: new RelayCommand(() => Envoyer(jid)),
                 Remplacer: new RelayCommand(() => Remplacer(jid)),
                 Annuler: new RelayCommand(() => Annuler(jid)),
-                Historique: new RelayCommand(() => Historique(jid))));
+                Historique: new RelayCommand(() => Historique(jid)),
+                RemisEnMain: new RelayCommand(() => MarquerRemis(jid)),
+                PeutMarquerRemis: j.EstActif && j.DateEnvoi is null));
         }
 
         // À traiter
@@ -246,7 +253,8 @@ public sealed class DonsViewModel : ObservableObject
         foreach (var j in depot.Justificatifs.Where(j => j.EstActif && j.DateEnvoi is null).Take(6))
         {
             var id = j.Id;
-            ATraiter.Add(new ElementATraiter($"{j.Numero} ({NomEntreprise(j.EntrepriseId)}) : à envoyer", new RelayCommand(() => Envoyer(id)), "Envoyer"));
+            ATraiter.Add(new ElementATraiter($"{j.Numero} ({NomEntreprise(j.EntrepriseId)}) : à envoyer ou à remettre",
+                new RelayCommand(() => Envoyer(id)), "Envoyer", new RelayCommand(() => MarquerRemis(id)), "Remis en main propre"));
         }
         foreach (var d in depot.Dons.Where(d => d.Statut == StatutDon.EnAttente).Take(4))
         {
@@ -303,6 +311,17 @@ public sealed class DonsViewModel : ObservableObject
         try { _ctx.Justificatifs?.VerifierEnvoiPossible(j); }
         catch (InvalidOperationException ex) { _ctx.Plateforme.Informer("Envoi impossible", ex.Message); return; }
         Ouvrir(new EnvoiJustificatifViewModel(_ctx, j));
+    }
+
+    /// <summary>Justificatif imprimé et donné à l'entreprise : il sort de « À traiter ».</summary>
+    private void MarquerRemis(Guid id)
+    {
+        if (_ctx.Depot.TrouverJustificatif(id) is not { EstActif: true } j) return;
+        if (!_ctx.Plateforme.Confirmer($"{j.Numero} remis en main propre ?",
+                "Le document est noté comme remis à l'entreprise (imprimé et donné en main propre) et disparaît de la liste « À traiter ».",
+                "Oui, il est remis"))
+            return;
+        _ctx.Depot.MarquerJustificatifEnvoye(id, "remis en main propre");
     }
 
     private void Remplacer(Guid id)
