@@ -33,6 +33,10 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Toutes les fenêtres (principale, fiches, messages…) restent entières dans l'écran où elles s'ouvrent.
+        EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.LoadedEvent,
+            new RoutedEventHandler((s, _) => { if (s is Window f) Outils.Ecrans.GarderDans(f); }));
+
         // Une seule fenêtre à la fois : deux exemplaires écriraient les mêmes données.
         // Un second lancement ramène simplement la fenêtre existante au premier plan.
         _instanceUnique = new Mutex(true, @"Local\L-ICA-Gestion", out var premier);
